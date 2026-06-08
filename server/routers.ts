@@ -16,6 +16,7 @@ import {
   createSkill,
   createStudentProject,
   deleteProject,
+  deleteSkill,
   deleteStudentProject,
   getAllPendingRequests,
   getAllSkills,
@@ -652,6 +653,16 @@ const skillsRouter = router({
         throw new TRPCError({ code: "FORBIDDEN" });
       }
       await createSkill(input);
+      return { success: true };
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({ skillId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user.role !== "admin" && ctx.user.role !== "professor") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Apenas professores e administradores podem remover competências" });
+      }
+      await deleteSkill(input.skillId);
       return { success: true };
     }),
 

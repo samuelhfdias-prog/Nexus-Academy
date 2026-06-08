@@ -115,8 +115,6 @@ export async function updateUserRole(id: number, role: "aluno" | "professor" | "
   await db.update(users).set({ role }).where(eq(users.id, id));
 }
 
-// ─── Skills ───────────────────────────────────────────────────────────────────
-
 export async function getAllSkills() {
   const db = await getDb();
   if (!db) return [];
@@ -128,6 +126,14 @@ export async function createSkill(data: InsertSkill) {
   if (!db) return null;
   const result = await db.insert(skills).values(data);
   return result;
+}
+
+export async function deleteSkill(skillId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(userSkills).where(eq(userSkills.skillId, skillId));
+  await db.delete(projectSkills).where(eq(projectSkills.skillId, skillId));
+  await db.delete(skills).where(eq(skills.id, skillId));
 }
 
 export async function getUserSkills(userId: number) {
@@ -205,6 +211,7 @@ export async function getProjects(filters?: {
     .select({
       project: projects,
       owner: { id: users.id, name: users.name, email: users.email, role: users.role },
+      memberCount: sql<number>`(SELECT count(*) FROM ${projectMembers} WHERE ${projectMembers.projectId} = ${projects.id})`,
     })
     .from(projects)
     .leftJoin(users, eq(projects.ownerId, users.id))

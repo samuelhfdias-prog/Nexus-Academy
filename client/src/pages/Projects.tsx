@@ -193,11 +193,12 @@ export default function Projects() {
           ) : data?.data && data.data.length > 0 ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {data.data.map(({ project, owner }) => (
+              {data.data.map(({ project, owner, memberCount }) => (
                   <ProjectCard
                     key={project.id}
                     project={project}
                     owner={owner}
+                    memberCount={memberCount ?? 0}
                   />
                 ))}
               </div>

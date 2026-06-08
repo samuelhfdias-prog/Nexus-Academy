@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Award, Plus, Search, Zap } from "lucide-react";
+import { Award, Plus, Search, Zap, X } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -30,6 +30,7 @@ export default function Skills() {
   const [showCreate, setShowCreate] = useState(false);
   const [newSkillName, setNewSkillName] = useState("");
   const [newSkillCategory, setNewSkillCategory] = useState("");
+  const [skillToDelete, setSkillToDelete] = useState<{ id: number; name: string } | null>(null);
   const utils = trpc.useUtils();
 
   const { data: allSkills, isLoading } = trpc.skills.list.useQuery();
@@ -40,6 +41,15 @@ export default function Skills() {
       setShowCreate(false);
       setNewSkillName("");
       setNewSkillCategory("");
+      utils.skills.list.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const deleteMutation = trpc.skills.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Competência removida com sucesso!");
+      setSkillToDelete(null);
       utils.skills.list.invalidate();
     },
     onError: (err) => toast.error(err.message),
@@ -132,10 +142,19 @@ export default function Skills() {
                       return (
                         <span
                           key={skill.id}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-600 border transition-all duration-200 hover:shadow-sm cursor-default ${colorClass}`}
+                          className={`group/skill inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-600 border transition-all duration-200 hover:shadow-sm ${canCreate ? "cursor-pointer pr-2" : "cursor-default"} ${colorClass}`}
                         >
                           <Award className="w-3.5 h-3.5" />
                           {skill.name}
+                          {canCreate && (
+                            <button
+                              onClick={() => setSkillToDelete({ id: skill.id, name: skill.name })}
+                              className="ml-1 w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover/skill:opacity-100 transition-opacity duration-200 hover:bg-red-100 hover:text-red-600"
+                              title="Remover competência"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          )}
                         </span>
                       );
                     })}
@@ -197,6 +216,31 @@ export default function Skills() {
               className="bg-[#24B68E] hover:bg-[#1E9A78] text-white rounded-xl font-700"
             >
               {createMutation.isPending ? "Criando..." : "Criar Competência"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!skillToDelete} onOpenChange={() => setSkillToDelete(null)}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-700 text-[#1F2937]">Remover Competência</DialogTitle>
+            <DialogDescription className="text-[#6B7280]">
+              Tem certeza que deseja remover a competência <strong className="text-[#1F2937]">"{skillToDelete?.name}"</strong>? 
+              Esta ação irá removê-la de todos os perfis de usuários e projetos associados.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSkillToDelete(null)} className="rounded-xl">
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => skillToDelete && deleteMutation.mutate({ skillId: skillToDelete.id })}
+              disabled={deleteMutation.isPending}
+              className="bg-red-500 hover:bg-red-600 text-white rounded-xl font-700"
+            >
+              {deleteMutation.isPending ? "Removendo..." : "Remover"}
             </Button>
           </DialogFooter>
         </DialogContent>
