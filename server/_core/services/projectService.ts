@@ -17,7 +17,7 @@ import {
   UpdateProjectInput,
   ApprovalStatus,
   ProjectStatus,
-} from "./projectTypes";
+} from "../types/projectTypes";
 
 // ─── Project Lifecycle ────────────────────────────────────────────────────────
 
