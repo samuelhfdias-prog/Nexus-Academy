@@ -11,7 +11,7 @@ import {
   SkillLevel,
   TimelineEventType,
   UserRole,
-} from "./projectTypes";
+} from "../types/projectTypes";
 
 // ─── Base Schemas ──────────────────────────────────────────────────────────────
 
