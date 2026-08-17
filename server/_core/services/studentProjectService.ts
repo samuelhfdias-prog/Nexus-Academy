@@ -5,7 +5,7 @@
  */
 
 import { TRPCError } from "@trpc/server";
-import { UserRole } from "./projectTypes";
+import { UserRole } from "../types/projectTypes";
 
 // ─── Student Project Creation ──────────────────────────────────────────────────
 
