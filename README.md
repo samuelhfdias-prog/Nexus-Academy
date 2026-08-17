@@ -1,325 +1,174 @@
-# Nexus Academic — Plataforma de Gestão de PD&I
+<div align="center">
 
-> Plataforma integrada para gestão e visibilidade de projetos de Pesquisa, Desenvolvimento e Inovação da FATEC Pompéia.
+**English** | [Português](README.pt-BR.md)
 
----
+# Nexus Academic
 
-## Índice
+**Research, Development and Innovation project management for an academic environment.**
 
-1. [Visão Geral](#visão-geral)
-2. [Objetivo do Projeto](#objetivo-do-projeto)
-3. [Como o Projeto Foi Desenvolvido](#como-o-projeto-foi-desenvolvido)
-4. [Tecnologias](#tecnologias)
-5. [Estrutura de Pastas](#estrutura-de-pastas)
-6. [Pasta a Pasta](#pasta-a-pasta)
-7. [Fluxo de Funcionamento](#fluxo-de-funcionamento)
-8. [Instalação e Execução](#instalação-e-execução)
-9. [Comandos Disponíveis](#comandos-disponíveis)
-10. [Considerações Finais](#considerações-finais)
+</div>
 
----
+Nexus Academic is a full-stack platform for managing research projects, student proposals, skills, participation requests, project members, timelines and notifications at FATEC Pompéia.
 
-## Visão Geral
+## Architecture
 
-O **Nexus Academic** é uma aplicação full stack que permite o gerenciamento de projetos de pesquisa e desenvolvimento dentro de uma instituição acadêmica.
-
-Ela integra:
-- cadastro e autenticação de usuários;
-- gestão de projetos de professores;
-- submissão e revisão de propostas de alunos;
-- controle de competências e membros de projeto;
-- dashboards com indicadores e notificações.
-
----
-
-## Objetivo do Projeto
-
-Este projeto foi desenvolvido para:
-- demonstrar uma solução full stack moderna;
-- conectar frontend React com backend Node.js/Express e tRPC;
-- aplicar um modelo de dados relacional com Drizzle ORM;
-- suportar papéis distintos: aluno, professor e admin;
-- simular um fluxo completo de PD&I em ambiente acadêmico.
-
----
-
-## Como o Projeto Foi Desenvolvido
-
-O desenvolvimento seguiu estas etapas principais:
-1. montar a estrutura de projeto com `pnpm`, `vite`, `React` e `TypeScript`;
-2. projetar o esquema de dados em `drizzle/schema.ts` para refletir usuários, projetos, demandas e aprovações;
-3. criar o backend em `server/_core/index.ts` e `server/routers.ts` usando Express e tRPC;
-4. implementar autenticação local com cookie de sessão segura em `auth-local.ts`;
-5. construir o frontend em `client/src`, com rotas públicas e protegidas e componentes reutilizáveis;
-6. compartilhar configurações críticas em `shared/const.ts` para garantir consistência;
-7. validar o código com testes `vitest` e checagens TypeScript.
-
----
-
-## Tecnologias
-
-### Frontend
-- React 19
-- TypeScript 5.9
-- Vite
-- Wouter
-- Tailwind CSS
-- shadcn/ui
-- Recharts
-- @tanstack/react-query
-- tRPC Client
-
-### Backend
-- Node.js 22
-- Express
-- tRPC Server
-- Drizzle ORM
-- Zod
-- bcrypt
-- jose
-- dotenv
-
----
-
-## Estrutura de Pastas
-
+```mermaid
+flowchart LR
+    U["Users"] --> W["React + tRPC Client"]
+    W --> A["Express + tRPC Server"]
+    A --> S["Authentication + RBAC"]
+    A --> O["Drizzle ORM"]
+    O --> D[("Relational database")]
 ```
+
+## Project goals
+
+- Demonstrate a modern full-stack TypeScript application
+- Connect a React frontend to an Express and tRPC backend
+- Model relational academic workflows through Drizzle ORM
+- Support student, professor and administrator roles
+- Represent a complete academic R&D and innovation workflow
+
+## Main capabilities
+
+- User registration and authentication
+- Professor project management
+- Student proposal submission and review
+- Skill and project-member management
+- Participation requests and approval workflows
+- Timeline events, project tasks and notifications
+- Role-protected dashboards and administration routes
+
+## Technology stack
+
+| Layer | Technologies |
+| --- | --- |
+| Frontend | React 19, TypeScript 5.9, Vite, Wouter and Tailwind CSS |
+| Components and data | shadcn/ui, Recharts, TanStack Query and tRPC Client |
+| Backend | Node.js 22, Express and tRPC Server |
+| Data | Drizzle ORM with relational database support |
+| Validation and security | Zod, bcrypt, jose and secure session cookies |
+| Quality | Vitest, TypeScript checks and Prettier |
+
+## Development approach
+
+1. Set up the project with pnpm, Vite, React and TypeScript.
+2. Design users, projects, proposals, skills and approval relationships in `drizzle/schema.ts`.
+3. Build the Express and tRPC backend in `server/_core/index.ts` and `server/routers.ts`.
+4. Implement local authentication and secure sessions in `server/auth-local.ts`.
+5. Create public and protected frontend routes in `client/src`.
+6. Share critical constants and types through `shared/`.
+7. Validate behavior with Vitest and TypeScript checks.
+
+## Main data model
+
+The Drizzle schema includes:
+
+- Users and user skills
+- Professor projects and student proposals
+- Required project skills and project members
+- Participation requests
+- Project timelines and tasks
+- Notifications
+
+## Authentication flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant W as React
+    participant A as tRPC API
+    participant D as Database
+    U->>W: Submit email and password
+    W->>A: auth.login
+    A->>D: Validate user
+    D-->>A: User and password hash
+    A-->>W: Secure session cookie
+    W->>A: Protected request
+    A->>D: Load session user
+```
+
+The backend enforces authentication through `protectedProcedure` and administrator authorization through `adminProcedure`. Frontend route protection improves navigation but is not the security boundary.
+
+## Project and proposal workflow
+
+- Professors create and maintain projects.
+- Students submit project proposals.
+- Professors and administrators review, approve or reject proposals.
+- Approved proposals can be connected to official projects.
+- Participation requests and project membership are stored in normalized tables.
+- Dashboards expose indicators and pending actions for each role.
+
+## Project structure
+
+```text
 nexus_academic/
-├── client/                     # Frontend React com Vite
-├── drizzle/                    # Schema de banco de dados Drizzle
-├── server/                     # Backend Express e tRPC
-├── shared/                     # Constantes e tipos compartilhados
-├── check-db.js                 # Utilitário de verificação de banco de dados
-├── migrate.js                  # Script de migração customizado
-├── migrate-tasks.ts            # Tarefas de migração
-├── package.json                # Scripts e dependências
-├── tsconfig.json               # Configuração TypeScript
-├── vite.config.ts              # Configuração Vite
-└── README.md                   # Documentação do projeto
+|-- client/              # React and Vite frontend
+|-- drizzle/             # Drizzle schema and relationships
+|-- server/              # Express, tRPC, authentication and data access
+|-- shared/              # Shared constants and TypeScript types
+|-- check-db.js
+|-- migrate.js
+|-- migrate-tasks.ts
+|-- package.json
+|-- tsconfig.json
+`-- vite.config.ts
 ```
 
----
+Important backend files:
 
-## Pasta a Pasta
+- `server/_core/index.ts`: Express startup, parsers, tRPC and static delivery
+- `server/_core/trpc.ts`: public, protected and administrator procedures
+- `server/_core/context.ts`: session user loading
+- `server/auth-local.ts`: password validation, BCrypt and login lockout
+- `server/db.ts`: Drizzle queries and data operations
+- `server/routers.ts`: authentication, projects, requests, skills and administration procedures
 
-### `client/`
+## Requirements
 
-Esta pasta contém o frontend em React.
+- Node.js 22 or newer
+- pnpm 10 or newer
+- SQLite, MySQL or TiDB according to the selected configuration
+- Required environment variables configured locally
 
-- `client/public/`
-  - arquivos estáticos expostos diretamente pelo servidor.
-
-- `client/src/main.tsx`
-  - ponto de entrada do React.
-  - inicializa o app e monta no DOM.
-
-- `client/src/App.tsx`
-  - define o roteamento da aplicação com `wouter`.
-  - envolve a UI em providers globais como `ThemeProvider`, `TooltipProvider` e `Toaster`.
-  - separa rotas públicas de rotas protegidas por autenticação.
-
-- `client/src/index.css`
-  - estilos globais e reset CSS.
-  - define o design system básico do aplicativo.
-
-- `client/src/components/`
-  - componentes reutilizáveis.
-  - `layout/`: componentes de layout como `Navbar`, `Footer` e `AppLayout`.
-  - `projects/`: componentes relacionados a projetos e aprovação.
-  - `auth/ProtectedRoute.tsx`: bloqueia rotas para usuários não autenticados.
-  - `ui/`: componentes compartilhados de interface.
-
-- `client/src/contexts/ThemeContext.tsx`
-  - gerencia tema claro/escuro da interface.
-
-- `client/src/hooks/`
-  - hooks customizados para lógica reutilizável.
-  - `useComposition.ts`: composição de funções.
-  - `useMobile.tsx`: detecção de dispositivo móvel.
-  - `usePersistFn.ts`: mantém funções estáveis entre renderizações.
-
-- `client/src/lib/trpc.ts`
-  - configura o cliente tRPC para chamadas tipadas ao backend.
-
-- `client/src/pages/`
-  - páginas principais da interface.
-  - cada arquivo representa uma rota distinta da aplicação.
-
-### `drizzle/`
-
-Define o modelo de dados do banco.
-
-- `drizzle/schema.ts`
-  - declara todas as tabelas e seus relacionamentos usando Drizzle ORM.
-  - modela entidades como usuários, projetos, competências e solicitações.
-
-O esquema inclui tabelas para:
-- usuários (`users`);
-- competências (`skills`);
-- competências de usuário (`user_skills`);
-- projetos de professores (`projects`);
-- propostas de alunos (`student_projects`);
-- demandas de projeto (`project_skills`);
-- membros de projeto (`project_members`);
-- solicitações de participação (`participation_requests`);
-- eventos de cronograma (`project_timeline`);
-- notificações (`notifications`);
-- tarefas de projeto (`project_tasks`).
-
-### `server/`
-
-Contém o backend e a API.
-
-- `server/_core/index.ts`
-  - inicializa o servidor Express.
-  - configura parsers para JSON e URL-encoded.
-  - registra rotas de OAuth e proxy de armazenamento.
-  - monta o middleware tRPC em `/api/trpc`.
-  - em modo dev, integra Vite; em produção, serve arquivos estáticos.
-
-- `server/_core/trpc.ts`
-  - configura o tRPC com `superjson`.
-  - exporta `router`, `publicProcedure`, `protectedProcedure` e `adminProcedure`.
-  - `protectedProcedure` exige que o usuário esteja autenticado.
-  - `adminProcedure` exige que o usuário tenha papel `admin`.
-
-- `server/_core/context.ts`
-  - constrói o contexto para cada requisição tRPC.
-  - faz leitura do cookie de sessão e busca dados do usuário.
-
-- `server/_core/cookies.ts`
-  - define as opções do cookie de sessão na aplicação.
-
-- `server/_core/oauth.ts`
-  - implementa rotas de OAuth para autenticação externa.
-
-- `server/_core/storageProxy.ts`
-  - gerencia uploads/downloads de arquivos através de proxy.
-
-- `server/auth-local.ts`
-  - implementa autenticação local.
-  - valida senha, gera hash bcrypt e controla bloqueios de login.
-
-- `server/db.ts`
-  - abstrai operações de banco de dados usando Drizzle.
-  - implementa funções de CRUD e consultas específicas.
-
-- `server/routers.ts`
-  - agrupa as procedures tRPC da aplicação.
-  - define endpoints de autenticação, projetos, notificações e mais.
-
-- `server/storage.ts`
-  - helpers de armazenamento de arquivos.
-
-- `server/auth-local.test.ts` e `server/auth.logout.test.ts`
-  - testes de autenticação e logout.
-
-### `shared/`
-
-Código utilizado tanto pelo frontend quanto pelo backend.
-
-- `shared/const.ts`
-  - constantes e whitelists compartilhadas.
-  - ex.: áreas temáticas, categorias de competência, nomes de cookie e mensagens de erro.
-
-- `shared/types.ts`
-  - tipos TypeScript globais usados por ambas as camadas.
-
----
-
-## Fluxo de Funcionamento
-
-### Autenticação
-
-1. O usuário submete email e senha na tela de login.
-2. O frontend envia a requisição ao endpoint tRPC `auth.login`.
-3. `server/auth-local.ts` valida as credenciais e cria um token JWT.
-4. O token é gravado como cookie seguro no navegador.
-5. Cada requisição tRPC subsequente usa `server/_core/context.ts` para carregar o usuário.
-6. Rotas protegidas usam `protectedProcedure` para exigir login.
-
-### Projetos e Propostas
-
-- Professores criam e editam projetos.
-- Alunos podem criar propostas de projeto.
-- Professores e admins revisam propostas e aprovam ou rejeitam.
-- Propostas aprovadas podem ser vinculadas a projetos oficiais.
-- Os dados são persistidos em tabelas normalizadas no banco.
-
-### Proteção de Rotas
-
-- `client/src/App.tsx` controla acessos com `ProtectedRoute`.
-- Rotas como `/dashboard`, `/perfil`, `/minhas-propostas` e `/admin` exigem autenticação.
-- A verificação de papel ocorre tanto no frontend quanto no backend.
-
-### Dados Compartilhados
-
-- `shared/const.ts` mantém listas comuns entre frontend e backend.
-- Isso evita divergências entre valores permitidos e validação.
-
----
-
-## Instalação e Execução
-
-### Requisitos
-
-- Node.js >= 22
-- pnpm >= 10
-- SQLite/MySQL/TiDB conforme configuração
-- Variáveis de ambiente configuradas
-
-### Passos
+## Install and run
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-### Produção
+Production:
 
 ```bash
 pnpm build
 pnpm start
 ```
 
----
+## Commands
 
-## Comandos Disponíveis
+| Command | Action |
+| --- | --- |
+| `pnpm dev` | Start the development server |
+| `pnpm build` | Build the frontend and package the backend |
+| `pnpm start` | Start the production application |
+| `pnpm check` | Run TypeScript checks |
+| `pnpm format` | Format code with Prettier |
+| `pnpm test` | Run tests |
+| `pnpm db:push` | Generate and apply Drizzle migrations |
 
-- `pnpm dev`: inicia servidor de desenvolvimento.
-- `pnpm build`: compila o frontend e empacota o backend.
-- `pnpm start`: executa a aplicação de produção.
-- `pnpm check`: verifica tipos TypeScript.
-- `pnpm format`: formata o código com Prettier.
-- `pnpm test`: executa testes.
-- `pnpm db:push`: gera e aplica migrações Drizzle.
-
----
-
-## Considerações Finais
-
-Este projeto foi concebido como uma plataforma completa de PD&I para um ambiente acadêmico, combinando:
-- experiência de usuário responsiva;
-- autenticação e autorização segura;
-- arquitetura de dados bem definida;
-- integração entre frontend e backend tipados.
-
-Ele pode ser apresentado ao professor como uma solução robusta e extensível para gestão de projetos acadêmicos.
-
-### Rotas da API (tRPC)
+## tRPC API overview
 
 | Namespace | Procedures |
-|---|---|
+| --- | --- |
 | `auth` | `me`, `logout` |
-| `projects` | `list`, `byId`, `create`, `update`, `delete`, `myProjects`, `addMember`, `removeMember`, `addSkill`, `removeSkill`, `addTimelineEvent` |
+| `projects` | `list`, `byId`, `create`, `update`, `delete`, `myProjects`, member, skill and timeline operations |
 | `requests` | `create`, `listByProject`, `myRequests`, `allPending`, `review` |
 | `skills` | `list`, `create`, `mySkills`, `addToProfile`, `removeFromProfile` |
 | `dashboard` | `stats` |
 | `profile` | `get`, `update` |
 | `admin` | `users`, `updateUserRole`, `allProjects` |
 
----
+## License
 
-## Licença
-
-MIT — Projeto Integrador FATEC Pompéia · 2026
+MIT - FATEC Pompéia Integration Project, 2026.
